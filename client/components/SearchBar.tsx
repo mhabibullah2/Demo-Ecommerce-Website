@@ -171,7 +171,7 @@ function SearchBox({ initial, className = "", onDone }: Props & { initial: strin
                         <span className="block truncate text-sm font-medium">{product.name}</span>
                         <span className="block text-xs text-base-content/60">{product.category}</span>
                       </span>
-                      <span className="figure shrink-0 text-sm font-semibold">{money(product.price)}</span>
+                      <span className="figure shrink-0 text-sm font-semibold">{money(product.salePrice)}</span>
                     </Link>
                   </li>
                 ))}

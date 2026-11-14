@@ -16,9 +16,14 @@ export interface Product {
   description: string;
   image: string;
   gallery: string[];
+  // price is the normal price; salePrice is what the customer pays (the same when there is no discount)
   price: number;
+  discountPercent: number;
+  salePrice: number;
   stock: number;
   featured: boolean;
+  ratingAvg?: number;
+  ratingCount?: number;
   createdAt: string;
 }
 
@@ -34,6 +39,7 @@ export interface OrderItem {
   name: string;
   image: string;
   price: number;
+  originalPrice?: number;
   qty: number;
 }
 
@@ -44,6 +50,7 @@ export interface Order {
   userName: string;
   items: OrderItem[];
   subtotal: number;
+  discount?: number;
   deliveryFee: number;
   total: number;
   delivery: { name: string; phone: string; address: string; city: string };
@@ -88,4 +95,44 @@ export interface SessionUser {
   email: string;
   image?: string | null;
   role?: string;
+}
+
+export interface Review {
+  _id: string;
+  productId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  verified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReviewsResponse extends Paged<Review> {
+  summary: { avg: number; count: number; distribution: Record<1 | 2 | 3 | 4 | 5, number> };
+  mine: Review | null;
+}
+
+export interface AdminReview extends Review {
+  userEmail: string;
+  product: { _id: string; name: string; image: string } | null;
+}
+
+export interface RevenueReport {
+  from: string;
+  to: string;
+  totals: {
+    orders: number;
+    units: number;
+    grossSales: number;
+    discounts: number;
+    netSales: number;
+    deliveryFees: number;
+    revenue: number;
+    collected: number;
+    outstanding: number;
+    averageOrder: number;
+  };
+  days: DayPoint[];
+  topProducts: { productId: string; name: string; image: string; units: number; revenue: number }[];
 }

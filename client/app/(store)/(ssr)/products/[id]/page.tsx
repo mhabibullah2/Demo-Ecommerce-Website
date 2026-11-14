@@ -4,8 +4,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import BuyBox from "@/components/BuyBox";
 import ProductCard from "@/components/ProductCard";
+import PriceTag from "@/components/PriceTag";
 import ProductGallery from "@/components/ProductGallery";
-import { money } from "@/lib/format";
+import ReviewsSection from "@/components/ReviewsSection";
+import StarRating from "@/components/StarRating";
 import { getProduct, getProducts } from "@/lib/server-api";
 
 type Props = { params: Promise<{ id: string }> };
@@ -31,7 +33,10 @@ export default async function ProductPage({ params }: Props) {
         <div>
           <Link href={`/products?category=${encodeURIComponent(product.category)}`} className="text-sm font-medium text-primary hover:underline">{product.category}</Link>
           <h1 className="mt-1 text-3xl font-bold leading-tight sm:text-4xl">{product.name}</h1>
-          <p className="figure mt-5 text-3xl font-semibold">{money(product.price)}</p>
+          {!!product.ratingCount && (
+            <a href="#reviews" className="mt-3 inline-flex items-center gap-2 text-sm hover:text-primary"><StarRating value={product.ratingAvg ?? 0} /> <span className="figure">{product.ratingAvg?.toFixed(1)}</span> <span className="text-base-content/65">({product.ratingCount} {product.ratingCount === 1 ? "review" : "reviews"})</span></a>
+          )}
+          <div className="mt-4"><PriceTag size="lg" price={product.price} salePrice={product.salePrice} discountPercent={product.discountPercent} /></div>
           <p className={`mt-2 text-sm font-medium ${product.stock === 0 ? "text-error" : "text-success"}`}>{product.stock === 0 ? "Sold out" : `${product.stock} in stock`}</p>
           <p className="mt-5 leading-relaxed text-base-content/80">{product.description}</p>
           <div className="mt-6"><BuyBox product={product} /></div>
@@ -41,6 +46,8 @@ export default async function ProductPage({ params }: Props) {
           </ul>
         </div>
       </div>
+
+      <ReviewsSection productId={id} productName={product.name} />
 
       {others.length > 0 && (
         <section className="mt-12 border-t border-base-300 pt-8">

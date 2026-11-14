@@ -12,6 +12,13 @@ export function withRedirect(base: string, target: string | null | undefined) {
   return target && target !== "/" ? `${base}?redirect=${encodeURIComponent(target)}` : base;
 }
 
+// Where a new customer goes after registering: the login page, with a note that the account is ready.
+// Registering does not log anyone in, so they sign in themselves and then continue to the page they wanted.
+export function loginAfterRegister(target: string | null | undefined) {
+  const base = withRedirect("/login", target);
+  return `${base}${base.includes("?") ? "&" : "?"}registered=1`;
+}
+
 // A full page load, because the router may have saved "this page redirects to login" from before.
 // Reusing that after login would send the visitor round in a loop.
 export function goAfterLogin(target: string) {

@@ -7,7 +7,9 @@ export interface CartLine {
   productId: string;
   name: string;
   image: string;
+  // price is what the customer pays (after any discount); originalPrice is the normal price
   price: number;
+  originalPrice: number;
   stock: number;
   qty: number;
 }
@@ -21,7 +23,8 @@ function read(): CartLine[] {
   if (lines) return lines;
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) ?? "[]");
-    lines = Array.isArray(saved) ? saved : [];
+    // Carts saved before discounts existed have no originalPrice, so it falls back to price
+    lines = Array.isArray(saved) ? saved.map((line) => ({ ...line, originalPrice: line.originalPrice ?? line.price })) : [];
   } catch {
     lines = [];
   }
@@ -47,11 +50,11 @@ export function useCart() {
   return useSyncExternalStore(subscribe, read, () => EMPTY);
 }
 
-export function addToCart(product: Pick<Product, "_id" | "name" | "image" | "price" | "stock">, qty = 1) {
+export function addToCart(product: Pick<Product, "_id" | "name" | "image" | "price" | "salePrice" | "stock">, qty = 1) {
   const current = read();
   const existing = current.find((line) => line.productId === product._id);
   const wanted = Math.min((existing?.qty ?? 0) + qty, product.stock);
-  const line = { productId: product._id, name: product.name, image: product.image, price: product.price, stock: product.stock, qty: wanted };
+  const line = { productId: product._id, name: product.name, image: product.image, price: product.salePrice, originalPrice: product.price, stock: product.stock, qty: wanted };
   write(existing ? current.map((item) => (item === existing ? line : item)) : [...current, line]);
 }
 
@@ -83,8 +86,8 @@ export async function refreshCart() {
       return [];
     }
     const qty = Math.min(line.qty, product.stock);
-    if (product.price !== line.price || qty !== line.qty) changed = true;
-    return [{ ...line, name: product.name, image: product.image, price: product.price, stock: product.stock, qty }];
+    if (product.salePrice !== line.price || qty !== line.qty) changed = true;
+    return [{ ...line, name: product.name, image: product.image, price: product.salePrice, originalPrice: product.price, stock: product.stock, qty }];
   });
   write(next);
   return changed;

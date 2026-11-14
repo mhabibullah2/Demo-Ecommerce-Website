@@ -6,7 +6,7 @@ import { addToCart, useCart } from "@/lib/cart";
 import type { Product } from "@/lib/types";
 
 interface Props {
-  product: Pick<Product, "_id" | "name" | "image" | "price" | "stock">;
+  product: Pick<Product, "_id" | "name" | "image" | "price" | "salePrice" | "stock">;
   qty?: number;
   className?: string;
 }

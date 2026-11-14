@@ -1,4 +1,5 @@
 import { collections } from "../config/db.js";
+import { MAX_DISCOUNT } from "./pricing.js";
 import { asObjectId, HttpError, imageUrl, number, optionalText, text } from "./validate.js";
 
 export const LOW_STOCK = 5;
@@ -18,6 +19,8 @@ export async function readProduct(body: Record<string, unknown>) {
     image: imageUrl(body.image),
     gallery,
     price: number(body.price, "Price", { min: 1 }),
+    // A blank discount means no discount
+    discountPercent: body.discountPercent === "" || body.discountPercent == null ? 0 : number(body.discountPercent, "Discount", { min: 0, max: MAX_DISCOUNT, integer: true }),
     stock: number(body.stock, "Stock", { max: 1000000, integer: true }),
     featured: Boolean(body.featured),
   };

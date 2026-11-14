@@ -41,6 +41,8 @@ export default function ProductFilters({ categories }: { categories: Category[] 
         <option value="newest">Newest first</option>
         <option value="price-asc">Price: low to high</option>
         <option value="price-desc">Price: high to low</option>
+        <option value="top-rated">Top rated</option>
+        <option value="biggest-discount">Biggest discount</option>
       </select>
       <button className="btn btn-primary">Apply</button>
     </form>

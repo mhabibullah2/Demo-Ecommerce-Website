@@ -130,11 +130,12 @@ async function main() {
   await getDb();
   await createLogins();
   const { categories, products, orders, counters } = await collections();
-  await Promise.all([categories.deleteMany({}), products.deleteMany({}), orders.deleteMany({}), counters.deleteMany({})]);
   const db = await getDb();
+  // Reviews point at products, so they go when the products are replaced
+  await Promise.all([categories.deleteMany({}), products.deleteMany({}), orders.deleteMany({}), counters.deleteMany({}), db.collection("productReviews").deleteMany({})]);
   // Left over from the earlier, larger version of the system
   await products.dropIndex("sku_1").catch(() => undefined);
-  await Promise.all(["stockMoves", "suppliers", "purchases", "expenses", "reviews"].map((name) => db.collection(name).drop().catch(() => undefined)));
+  await Promise.all(["stockMoves", "suppliers", "purchases", "expenses"].map((name) => db.collection(name).drop().catch(() => undefined)));
 
   const now = Date.now();
   const DAY = 24 * 60 * 60 * 1000;

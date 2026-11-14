@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import { Figtree, IBM_Plex_Mono, Sora } from "next/font/google";
+import { Figtree } from "next/font/google";
 import type { ReactNode } from "react";
 import Providers from "@/components/Providers";
 import "./globals.css";
 
-const sora = Sora({ subsets: ["latin"], variable: "--font-sora" });
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
-const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex-mono" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000")),
@@ -19,7 +17,7 @@ const themeScript = `(function(){try{var t=localStorage.getItem('shopdesk-theme'
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" data-theme="shopdesk-light" suppressHydrationWarning className={`${sora.variable} ${figtree.variable} ${plexMono.variable}`}>
+    <html lang="en" data-theme="shopdesk-light" suppressHydrationWarning className={figtree.variable}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

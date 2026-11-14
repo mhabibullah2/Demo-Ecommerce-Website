@@ -32,6 +32,7 @@ export default function CheckoutPage() {
   const [busy, setBusy] = useState(false);
   const [placed, setPlaced] = useState(false);
   const subtotal = cart.reduce((sum, line) => sum + line.price * line.qty, 0);
+  const savings = cart.reduce((sum, line) => sum + (line.originalPrice - line.price) * line.qty, 0);
   const total = subtotal + deliveryFeeFor(subtotal);
   const soldOut = cart.some((line) => line.qty === 0);
   const online = method !== "Cash on Delivery";
@@ -136,7 +137,7 @@ export default function CheckoutPage() {
         </form>
 
         <div className="lg:sticky lg:top-20">
-          <OrderTotals subtotal={subtotal} deliveryFee={deliveryFeeFor(subtotal)}>
+          <OrderTotals subtotal={subtotal} deliveryFee={deliveryFeeFor(subtotal)} savings={savings}>
             <ul className="receipt-rule mt-4 space-y-1.5 pt-3 text-xs text-base-content/75">
               {cart.map((line) => (
                 <li key={line.productId} className="flex justify-between gap-3"><span>{line.qty} × {line.name}</span><span className="figure shrink-0">{money(line.price * line.qty)}</span></li>

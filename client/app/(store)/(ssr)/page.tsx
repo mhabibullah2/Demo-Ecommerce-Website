@@ -18,15 +18,18 @@ export default async function HomePage() {
   return (
     <>
       <section className="border-b border-base-300 bg-base-200">
-        <div className="page-shell grid items-center gap-8 py-10 lg:grid-cols-[1.1fr_1fr] lg:py-14">
+        <div className="page-shell grid items-center gap-10 py-10 lg:grid-cols-[1.05fr_1fr] lg:py-16">
           <div>
-            <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">From a shirt to a scooter, all in one shop.</h1>
-            <p className="section-text text-lg">Pick a category, choose what you like and order in a few clicks.</p>
-            <Link href="/products" className="btn btn-primary mt-7">Browse the shop <ArrowRight className="size-4" /></Link>
+            <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.5rem]">From a shirt to a scooter, all in one shop.</h1>
+            <p className="section-text text-lg">Pick a category, choose what you like and order in a few clicks. Pay online or when it arrives.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/products" className="btn btn-primary btn-lg">Browse the shop <ArrowRight className="size-4" /></Link>
+              <Link href="/products?sort=biggest-discount" className="btn btn-outline btn-lg">See discounts</Link>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            {["scooter", "check-shirt", "oppo", "microwave"].map((name) => (
-              <div key={name} className="aspect-[4/3] rounded-box border border-base-300 bg-[#fbfaf5] p-3 sm:p-4">
+          <div className="grid grid-cols-2 grid-rows-2 gap-3 sm:gap-4">
+            {["scooter", "check-shirt", "oppo"].map((name, index) => (
+              <div key={name} className={`product-tile rounded-box border border-base-300 p-4 shadow-sm ${index === 0 ? "row-span-2" : "aspect-[4/3]"}`}>
                 <img src={`/products/${name}-1.webp`} alt="" className="size-full object-contain" />
               </div>
             ))}
@@ -36,6 +39,7 @@ export default async function HomePage() {
 
       <section className="page-shell section-gap">
         <h2 className="section-title">Shop by category</h2>
+        <p className="section-text">Six departments, one cart.</p>
         <ul className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {categories.map((category) => (
             <li key={category._id}>

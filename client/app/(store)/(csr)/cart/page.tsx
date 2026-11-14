@@ -12,6 +12,7 @@ import { deliveryFeeFor, FREE_DELIVERY_FROM, money } from "@/lib/format";
 export default function CartPage() {
   const cart = useCart();
   const subtotal = cart.reduce((sum, line) => sum + line.price * line.qty, 0);
+  const savings = cart.reduce((sum, line) => sum + (line.originalPrice - line.price) * line.qty, 0);
 
   useEffect(() => {
     refreshCart().then((changed) => {
@@ -39,7 +40,7 @@ export default function CartPage() {
                 <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
                   <div className="flex items-start justify-between gap-3">
                     <Link href={`/products/${line.productId}`} className="font-semibold leading-snug hover:text-primary">{line.name}</Link>
-                    <p className="figure shrink-0 font-semibold">{money(line.price * line.qty)}</p>
+                    <p className="figure shrink-0 text-right font-semibold">{money(line.price * line.qty)}{line.originalPrice > line.price && <span className="block text-xs font-normal text-base-content/55 line-through">{money(line.originalPrice * line.qty)}</span>}</p>
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     {line.stock === 0 ? (
@@ -58,7 +59,7 @@ export default function CartPage() {
             ))}
           </ul>
           <div className="lg:sticky lg:top-20">
-            <OrderTotals subtotal={subtotal} deliveryFee={deliveryFeeFor(subtotal)}>
+            <OrderTotals subtotal={subtotal} deliveryFee={deliveryFeeFor(subtotal)} savings={savings}>
               {subtotal < FREE_DELIVERY_FROM && <p className="mt-3 text-xs text-base-content/70">Add <span className="figure">{money(FREE_DELIVERY_FROM - subtotal)}</span> more for free delivery.</p>}
               <Link href="/checkout" className={`btn btn-primary mt-4 w-full ${cart.some((line) => line.qty === 0) ? "btn-disabled" : ""}`}>Checkout</Link>
             </OrderTotals>

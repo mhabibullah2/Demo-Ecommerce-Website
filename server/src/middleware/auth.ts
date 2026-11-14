@@ -25,3 +25,9 @@ export async function requireAdmin(req: Request, res: Response, next: NextFuncti
   if (res.locals.user.role !== "admin") throw new HttpError(403, "You do not have access to this.");
   next();
 }
+
+// For public pages that can show a little more to a logged-in visitor: the user, or null
+export async function currentUser(req: Request) {
+  const session = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
+  return session?.user ?? null;
+}

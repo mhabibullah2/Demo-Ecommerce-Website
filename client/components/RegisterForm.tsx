@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
-import { goAfterLogin, withRedirect } from "@/lib/return-path";
+import { loginAfterRegister, withRedirect } from "@/lib/return-path";
 import { passwordProblem } from "@/lib/validation";
 import GoogleButton from "@/components/GoogleButton";
 
@@ -33,12 +33,13 @@ export default function RegisterForm({ redirectTo, googleEnabled }: { redirectTo
       setBusy(false);
       return;
     }
-    goAfterLogin(redirectTo);
+    // The account is made but nobody is logged in yet, so the login page is next
+    window.location.assign(loginAfterRegister(redirectTo));
   }
 
   return (
     <div className="page-shell grid min-h-[75vh] place-items-center py-12">
-      <div className="w-full max-w-md rounded-box border border-base-300 bg-base-200 p-6 sm:p-8">
+      <div className="w-full max-w-md rounded-box border border-base-300 bg-base-100 p-6 shadow-lg sm:p-8">
         <h1 className="section-title">Create your account</h1>
 
         <form onSubmit={submit} className="mt-6 space-y-4">

@@ -27,7 +27,8 @@ export default function Navbar() {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`));
 
   return (
-    <header className="no-print sticky top-0 z-50 border-b border-base-300 bg-base-100/90 backdrop-blur">
+    <header className="no-print sticky top-0 z-50 border-b border-base-300 bg-base-100/95 shadow-sm backdrop-blur">
+      <p className="bg-neutral py-1.5 text-center text-xs font-medium text-neutral-content">Free delivery on orders from ৳5,000. Pay with bKash, Nagad or cash on delivery.</p>
       <nav className="page-shell flex h-16 items-center justify-between gap-4" aria-label="Main">
         <Logo />
 

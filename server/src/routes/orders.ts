@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ObjectId, type Filter } from "mongodb";
 import { collections, inTransaction, ORDER_STATUSES, PAYMENT_METHODS, type OrderDoc, type OrderItemDoc, type OrderStatus, type PaymentMethod } from "../config/db.js";
 import { changeStatus } from "../lib/orders.js";
+import { salePriceOf } from "../lib/pricing.js";
 import { asObjectId, body, escapeRegex, HttpError, number, pageOf, paging, queryParams, text } from "../lib/validate.js";
 import { requireAdmin, requireUser } from "../middleware/auth.js";
 
@@ -56,18 +57,23 @@ router.post("/", requireUser, async (req, res) => {
     const items: OrderItemDoc[] = [];
     for (const [id, qty] of quantities) {
       const productId = new ObjectId(id);
-      // Only takes stock when enough is left, so two buyers cannot get the last item
+      // One atomic step: it takes the stock only if enough is left. When two buyers go for the last
+      // item at the same moment, MongoDB lets exactly one of them through and the other gets nothing.
       const product = await products.findOneAndUpdate({ _id: productId, stock: { $gte: qty } }, { $inc: { stock: -qty } }, { session });
       if (!product) {
         const current = await products.findOne({ _id: productId }, { session, projection: { name: 1, stock: 1 } });
-        throw new HttpError(409, current
-          ? `Only ${current.stock} left of ${current.name}. Please update your cart.`
-          : "A product in your cart is no longer sold. Please remove it.");
+        if (!current) throw new HttpError(409, "A product in your cart is no longer sold. Please remove it.");
+        throw new HttpError(409, current.stock === 0
+          ? `Sorry, ${current.name} has just sold out. Someone else bought the last one before you. Your order was not placed.`
+          : `Only ${current.stock} left of ${current.name}. Please update your cart.`);
       }
-      items.push({ productId, name: product.name, image: product.image, price: product.price, qty });
+      // The customer pays the discounted price. The normal price is kept so the order can show the saving.
+      const price = salePriceOf(product.price, product.discountPercent);
+      items.push({ productId, name: product.name, image: product.image, price, originalPrice: product.price, qty });
     }
     const counter = await counters.findOneAndUpdate({ _id: "order" }, { $inc: { value: 1 } }, { session, upsert: true, returnDocument: "after" });
-    const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const subtotal = Math.round(items.reduce((sum, item) => sum + item.price * item.qty, 0) * 100) / 100;
+    const discount = items.reduce((sum, item) => sum + ((item.originalPrice ?? item.price) - item.price) * item.qty, 0);
     const deliveryFee = subtotal >= FREE_DELIVERY_FROM ? 0 : DELIVERY_FEE;
     const doc: OrderDoc = {
       orderNo: `SD-${1000 + counter!.value}`,
@@ -75,8 +81,9 @@ router.post("/", requireUser, async (req, res) => {
       userName: user.name,
       items,
       subtotal,
+      discount: Math.round(discount * 100) / 100,
       deliveryFee,
-      total: subtotal + deliveryFee,
+      total: Math.round((subtotal + deliveryFee) * 100) / 100,
       delivery,
       payment,
       status: "Pending",

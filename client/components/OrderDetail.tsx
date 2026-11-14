@@ -127,7 +127,7 @@ export default function OrderDetail({ id, manage = false }: { id: string; manage
                 <span className="product-tile size-14 shrink-0 rounded-field p-1"><img src={item.image} alt="" className="size-full object-contain" /></span>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium leading-snug">{item.name}</p>
-                  <p className="figure text-sm text-base-content/70">{item.qty} × {money(item.price)}</p>
+                  <p className="figure text-sm text-base-content/70">{item.qty} × {money(item.price)}{item.originalPrice && item.originalPrice > item.price && <span className="ml-2 line-through">{money(item.originalPrice)}</span>}</p>
                 </div>
                 <p className="figure font-semibold">{money(item.price * item.qty)}</p>
               </li>
@@ -143,7 +143,7 @@ export default function OrderDetail({ id, manage = false }: { id: string; manage
           </section>
         </div>
 
-        <OrderTotals subtotal={order.subtotal} deliveryFee={order.deliveryFee}>
+        <OrderTotals subtotal={order.subtotal} deliveryFee={order.deliveryFee} savings={order.discount}>
           <dl className="receipt-rule mt-4 space-y-1 pt-3 text-xs text-base-content/75">
             <div className="flex justify-between gap-3"><dt>Payment</dt><dd>{order.payment.method}</dd></div>
             <div className="flex justify-between gap-3"><dt>Status</dt><dd className="font-medium">{order.payment.status}</dd></div>

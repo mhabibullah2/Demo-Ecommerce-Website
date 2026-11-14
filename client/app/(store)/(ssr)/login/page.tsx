@@ -7,7 +7,7 @@ import { safeRedirect } from "@/lib/validation";
 
 export const metadata: Metadata = { title: "Login" };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ redirect?: string; error?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ redirect?: string; error?: string; registered?: string }> }) {
   const params = await searchParams;
   const target = safeRedirect(params.redirect);
   if (await getUser()) redirect(target);
@@ -17,5 +17,5 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       // Google only joins an account whose email is confirmed, so nobody can claim someone else's address
       ? "This email already has a ShopDesk account made with a password. Please log in with your email and password."
       : "Google sign in did not finish. Please try again, or log in with your email and password.";
-  return <LoginForm redirectTo={target} googleEnabled={(await getSettings()).googleLogin} initialError={googleError} />;
+  return <LoginForm redirectTo={target} googleEnabled={(await getSettings()).googleLogin} initialError={googleError} notice={params.registered === "1" ? "Your account is ready. Please log in to continue." : ""} />;
 }

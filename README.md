@@ -2,7 +2,7 @@
 
 An online shop management system. The administrator keeps the catalog of home appliances, men's and women's wardrobes, office equipment, automobiles, and phones, with details, prices and photographs. Customers choose a category, pick an item and order easily, then pay online or on delivery and ask for an exchange within 7 days.
 
-**Live site:** https://shopdesk-talha.vercel.app
+**Live site:** add your Vercel address here after deploying
 
 ## Demo logins
 
@@ -19,7 +19,12 @@ The login page has a button that fills in each of these.
 - **Ordering:** cart, checkout and order tracking
 - **Payment:** bKash, Nagad or cash on delivery. For bKash and Nagad, the customer enters the transaction ID and the admin confirms it. The demo uses a sample number, so no real money moves.
 - **Exchange:** customers can ask within 7 days of delivery, and the admin approves or rejects
-- **Admin:** products, categories, orders, customers and a sales overview
+- **Discounts:** the admin sets a percentage on a product. Customers see the normal price crossed out, the new price, the percentage off and how much they save, in the shop, cart, checkout and on their order
+- **Ratings and feedback:** logged-in customers rate products from 1 to 5 stars and leave a comment (one per product, editable). Buyers with a delivered order get a "Verified buyer" tag, and the admin can remove feedback
+- **Last item in stock:** if two customers order the last one at the same moment, only the first order goes through. The other sees a clear "just sold out" message and no order is created
+- **Revenue report:** pick any date range to see revenue, discounts given, delivery fees, money collected, a daily chart and best sellers, with CSV download and print
+- **Sign up:** registering creates the account and opens the login page, so the customer logs in on purpose
+- **Admin:** products (with discounts), categories, orders, customers, feedback, revenue and a sales overview
 - Login with email or Google, light and dark themes, on phone and desktop
 
 ## Stack
@@ -63,7 +68,7 @@ Names in brackets, like `(ssr)`, only group the folders and never appear in the 
 You need Node.js 20.12 or newer and a free [MongoDB Atlas](https://www.mongodb.com/atlas) database.
 
 ```bash
-git clone https://github.com/talhabinsaleh/shopdesk.git
+git clone <your-repo-url>
 cd shopdesk
 npm install          # installs client and server together
 cp .env.example .env # then fill in MONGODB_URI and BETTER_AUTH_SECRET

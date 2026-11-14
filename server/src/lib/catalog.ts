@@ -1,5 +1,6 @@
-import { ObjectId, type Filter, type Sort } from "mongodb";
+import { ObjectId, type Filter } from "mongodb";
 import { collections, type ProductDoc } from "../config/db.js";
+import { priced } from "./pricing.js";
 import { asObjectId, escapeRegex, HttpError, pageOf, paging } from "./validate.js";
 
 // Used by both the public API routes and the shop pages
@@ -16,20 +17,25 @@ export async function listCategories() {
 
 export async function featuredProducts() {
   const { products } = await collections();
-  return products.find({ featured: true }).sort({ createdAt: -1 }).limit(8).toArray();
+  return (await products.find({ featured: true }).sort({ createdAt: -1 }).limit(8).toArray()).map(priced);
 }
 
 // The cart re-reads its products, so a saved cart always shows today's price and stock
 export async function productsByIds(ids: string) {
   const { products } = await collections();
   const list = ids.split(",").filter((id) => ObjectId.isValid(id)).slice(0, 50).map((id) => new ObjectId(id));
-  return products.find({ _id: { $in: list } }).toArray();
+  return (await products.find({ _id: { $in: list } }).toArray()).map(priced);
 }
 
-const SORTS: Record<string, Sort> = {
+// What a customer pays is the price after the discount, so price sorting uses that
+const effectivePrice = { $multiply: ["$price", { $subtract: [1, { $divide: [{ $ifNull: ["$discountPercent", 0] }, 100] }] }] };
+
+const SORTS: Record<string, Record<string, 1 | -1>> = {
   newest: { createdAt: -1, _id: -1 },
-  "price-asc": { price: 1, _id: 1 },
-  "price-desc": { price: -1, _id: 1 },
+  "price-asc": { effectivePrice: 1, _id: 1 },
+  "price-desc": { effectivePrice: -1, _id: 1 },
+  "top-rated": { ratingAvg: -1, ratingCount: -1, _id: 1 },
+  "biggest-discount": { discountPercent: -1, _id: 1 },
 };
 
 export async function searchProducts(params: URLSearchParams) {
@@ -44,17 +50,25 @@ export async function searchProducts(params: URLSearchParams) {
   }
   const category = params.get("category");
   if (category) filter.category = category;
+  if (params.get("onSale") === "1") filter.discountPercent = { $gt: 0 };
 
   const [items, total] = await Promise.all([
-    products.find(filter).sort(SORTS[params.get("sort") ?? ""] ?? SORTS.newest).skip(skip).limit(limit).toArray(),
+    products.aggregate<ProductDoc>([
+      { $match: filter },
+      { $addFields: { effectivePrice } },
+      { $sort: SORTS[params.get("sort") ?? ""] ?? SORTS.newest },
+      { $skip: skip },
+      { $limit: limit },
+      { $project: { effectivePrice: 0 } },
+    ]).toArray(),
     products.countDocuments(filter),
   ]);
-  return pageOf(items, total, page, limit);
+  return pageOf(items.map(priced), total, page, limit);
 }
 
 export async function findProduct(id: string) {
   const { products } = await collections();
   const product = await products.findOne({ _id: asObjectId(id) });
   if (!product) throw new HttpError(404, "Product not found.");
-  return product;
+  return priced(product);
 }

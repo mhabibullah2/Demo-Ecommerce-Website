@@ -7,6 +7,7 @@ import { api, errorMessage } from "@/lib/api";
 import type { Category, Product } from "@/lib/types";
 import { useData } from "@/lib/use-data";
 import { Field, ImageField } from "@/components/manage/ui";
+import { money } from "@/lib/format";
 
 export default function ProductForm({ product }: { product?: Product }) {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function ProductForm({ product }: { product?: Product }) {
   const [image, setImage] = useState(product?.image ?? "");
   const [gallery, setGallery] = useState((product?.gallery ?? []).join("\n"));
   const [price, setPrice] = useState(product ? String(product.price) : "");
+  const [discount, setDiscount] = useState(product?.discountPercent ? String(product.discountPercent) : "");
   const [stock, setStock] = useState(product ? String(product.stock) : "0");
   const [featured, setFeatured] = useState(product?.featured ?? false);
   const [busy, setBusy] = useState(false);
@@ -25,7 +27,7 @@ export default function ProductForm({ product }: { product?: Product }) {
     event.preventDefault();
     setBusy(true);
     try {
-      const body = { name, categoryId, description, image, gallery: gallery.split("\n"), price, stock, featured };
+      const body = { name, categoryId, description, image, gallery: gallery.split("\n"), price, discountPercent: discount, stock, featured };
       if (product) await api(`/api/manage/products/${product._id}`, { method: "PUT", body });
       else await api("/api/manage/products", { method: "POST", body });
       toast.success(product ? "Product saved." : "Product added.");
@@ -52,8 +54,16 @@ export default function ProductForm({ product }: { product?: Product }) {
       <Field label="Details"><textarea required rows={4} maxLength={2000} value={description} onChange={(event) => setDescription(event.target.value)} className="textarea w-full" /></Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Price (৳)"><input type="number" required min={1} step="any" value={price} onChange={(event) => setPrice(event.target.value)} className="input w-full" /></Field>
+        <Field label="Discount (%)" hint="Optional. Customers see the normal price crossed out and the new price next to it.">
+          <input type="number" min={0} max={90} step={1} placeholder="0" value={discount} onChange={(event) => setDiscount(event.target.value)} className="input w-full" />
+        </Field>
         <Field label="Stock"><input type="number" required min={0} step={1} value={stock} onChange={(event) => setStock(event.target.value)} className="input w-full" /></Field>
       </div>
+      {Number(discount) > 0 && Number(price) > 0 && (
+        <p className="rounded-field bg-base-200 p-3 text-sm">
+          Customers will see <span className="figure text-base-content/55 line-through">{money(Number(price))}</span> <span className="figure font-semibold">{money(Math.round(Number(price) * (100 - Number(discount))) / 100)}</span>, a saving of <span className="figure font-semibold">{money(Number(price) - Math.round(Number(price) * (100 - Number(discount))) / 100)}</span> ({Math.round(Number(discount))}% off).
+        </p>
+      )}
       <label className="flex items-center gap-2 text-sm font-medium">
         <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={featured} onChange={(event) => setFeatured(event.target.checked)} />
         Show on the home page

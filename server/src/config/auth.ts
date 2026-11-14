@@ -12,6 +12,8 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 6,
+    // Registering only creates the account. The customer then sees the login page and signs in.
+    autoSignIn: false,
   },
   account: {
     // Someone who first registered with a password can later use "Continue with Google" with the
@@ -37,6 +39,10 @@ export const auth = betterAuth({
       if (ctx.path !== "/sign-up/email") return;
       const problem = passwordProblem(String(ctx.body?.password ?? ""));
       if (problem) throw new APIError("BAD_REQUEST", { message: problem });
+      // With auto sign in off, BetterAuth answers a repeated email as if it worked.
+      // Say so plainly instead, so nobody waits for an account that was never made.
+      const existing = await ctx.context.internalAdapter.findUserByEmail(String(ctx.body?.email ?? "").toLowerCase());
+      if (existing) throw new APIError("UNPROCESSABLE_ENTITY", { message: "An account with this email already exists." });
     }),
   },
 });

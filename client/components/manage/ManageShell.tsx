@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList, FolderTree, LayoutDashboard, Menu, Package, Store, Users, X } from "lucide-react";
+import { ClipboardList, FolderTree, LayoutDashboard, Menu, MessageSquareText, Package, Store, TrendingUp, Users, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
@@ -14,6 +14,8 @@ const NAV = [
   { href: "/manage/products", label: "Products", icon: Package },
   { href: "/manage/categories", label: "Categories", icon: FolderTree },
   { href: "/manage/customers", label: "Customers", icon: Users },
+  { href: "/manage/revenue", label: "Revenue", icon: TrendingUp },
+  { href: "/manage/reviews", label: "Feedback", icon: MessageSquareText },
 ];
 
 export default function ManageShell({ children }: { children: ReactNode }) {

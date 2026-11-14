@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
@@ -13,7 +13,7 @@ const DEMOS = [
   { label: "Customer", email: "customer@shopdesk.demo", password: "Ledger-Buyer-8302" },
 ];
 
-export default function LoginForm({ redirectTo, googleEnabled, initialError = "" }: { redirectTo: string; googleEnabled: boolean; initialError?: string }) {
+export default function LoginForm({ redirectTo, googleEnabled, initialError = "", notice = "" }: { redirectTo: string; googleEnabled: boolean; initialError?: string; notice?: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(initialError);
@@ -36,8 +36,9 @@ export default function LoginForm({ redirectTo, googleEnabled, initialError = ""
 
   return (
     <div className="page-shell grid min-h-[75vh] place-items-center py-12">
-      <div className="w-full max-w-md rounded-box border border-base-300 bg-base-200 p-6 sm:p-8">
+      <div className="w-full max-w-md rounded-box border border-base-300 bg-base-100 p-6 shadow-lg sm:p-8">
         <h1 className="section-title">Login</h1>
+        {notice && <p role="status" className="mt-4 flex items-start gap-2 rounded-field border border-success/40 bg-success/10 p-3 text-sm"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" /> {notice}</p>}
 
         <form onSubmit={submit} className="mt-6 space-y-4">
           <label className="block">

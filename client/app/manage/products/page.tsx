@@ -61,7 +61,10 @@ export default function ManageProductsPage() {
                     </div>
                   </td>
                   <td className="whitespace-nowrap">{product.category}</td>
-                  <td className="figure text-right">{money(product.price)}</td>
+                  <td className="figure text-right">
+                    {money(product.salePrice)}
+                    {product.discountPercent > 0 && <span className="block text-xs text-base-content/55"><span className="line-through">{money(product.price)}</span> <span className="text-success">-{product.discountPercent}%</span></span>}
+                  </td>
                   <td className={`figure text-right font-semibold ${product.stock === 0 ? "text-error" : ""}`}>{product.stock}</td>
                   <td>
                     <div className="flex justify-end gap-1">
